@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Asortyment — Płyny i Akcesoria Vape</title>
+  <meta name="description" content="Pełny asortyment płynów vape: Go Bears, Klarro, Fantos i więcej.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f0f2f5;
+      --surface: #ffffff;
+      --border: #e4e6ea;
+      --text: #111318;
+      --muted: #6b7280;
+      --radius: 16px;
+    }
+
+    body { font-family: 'Sora', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    /* NAV */
+    .nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
+    .nav-back { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: var(--text); text-decoration: none; opacity: 0.7; transition: opacity .2s; }
+    .nav-back:hover { opacity: 1; }
+    .nav-back svg { width: 18px; height: 18px; }
+    .nav-title { font-size: 14px; font-weight: 700; letter-spacing: -0.01em; }
+    .nav-spacer { width: 80px; }
+
+    /* HERO */
+    .hero { text-align: center; padding: 56px 24px 40px; }
+    .hero-label { font-size: 11px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; }
+    .hero h1 { font-size: clamp(28px, 5vw, 44px); font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 12px; }
+    .hero p { font-size: 15px; color: var(--muted); max-width: 480px; margin: 0 auto; line-height: 1.6; }
+
+    /* FILTERS */
+    .filters-wrap { padding: 0 24px 36px; display: flex; justify-content: center; }
+    .filters { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+    .filter-btn { font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 700; padding: 8px 20px; border-radius: 100px; border: 1.5px solid var(--border); background: var(--surface); color: var(--muted); cursor: pointer; transition: all .18s; white-space: nowrap; }
+    .filter-btn:hover { border-color: var(--text); color: var(--text); }
+    .filter-btn.active { background: var(--text); border-color: var(--text); color: #fff; }
+
+    /* GRID */
+    .grid-wrap { max-width: 1200px; margin: 0 auto; padding: 0 24px 80px; }
+    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; perspective: 800px; }
+
+    /* CARD */
+    .card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      cursor: pointer;
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity .45s cubic-bezier(.22,.68,0,1.2), transform .45s cubic-bezier(.22,.68,0,1.2), box-shadow .22s, border-color .22s;
+      display: block;
+      text-decoration: none;
+      color: inherit;
+    }
+    .card.visible { opacity: 1; transform: translateY(0); }
+    .card.visible:hover { transform: translateY(-6px) scale(1.015); box-shadow: 0 20px 48px rgba(0,0,0,0.10); border-color: #bbb; }
+    .card.hidden { display: none; }
+    .card.tilting { transition: box-shadow .22s, border-color .22s; }
+
+    .card-img { width: 100%; aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
+    .card-img img { width: 100%; height: 100%; object-fit: contain; padding: 20px; position: relative; z-index: 2; }
+    .card-img .placeholder { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; font-size: 56px; font-weight: 800; letter-spacing: -0.04em; opacity: 0.18; z-index: 1; user-select: none; }
+
+    .card[data-cat="go-bears"] .card-img { background: linear-gradient(135deg, #e8f4e8 0%, #c8e6c9 100%); }
+    .card[data-cat="go-bears"] .card-img .placeholder { color: #2e7d32; }
+    .card[data-cat="klarro"] .card-img { background: linear-gradient(135deg, #e3eaf8 0%, #c5d3f0 100%); }
+    .card[data-cat="klarro"] .card-img .placeholder { color: #1a3a8f; }
+    .card[data-cat="fantos"] .card-img { background: linear-gradient(135deg, #fdecea 0%, #f9c9c4 100%); }
+    .card[data-cat="fantos"] .card-img .placeholder { color: #b71c1c; }
+
+    .card-body { padding: 16px 18px 18px; border-top: 1.5px solid var(--border); }
+    .card-brand { font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+    .card-name { font-size: 15px; font-weight: 700; letter-spacing: -0.01em; color: var(--text); line-height: 1.3; }
+    .card-hint { font-size: 11px; color: var(--muted); margin-top: 6px; font-weight: 600; }
+
+    /* BACK LINKS */
+    .back-links { max-width: 1200px; margin: 0 auto; padding: 0 24px 60px; display: flex; gap: 16px; flex-wrap: wrap; }
+    .back-link { font-size: 13px; font-weight: 700; color: var(--muted); text-decoration: none; transition: color .2s; }
+    .back-link:hover { color: var(--text); }
+
+    /* MODAL (reused by random-flavor reveal) */
+    .modal-overlay {
+      display: none;
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(10,12,20,0.7);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+    @keyframes modalIn { from { opacity:0; transform: scale(.94) translateY(12px); } to { opacity:1; transform: none; } }
+    .modal-close {
+      width: 36px; height: 36px; border-radius: 50%; border: 1.5px solid var(--border);
+      background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: background .15s, border-color .15s;
+      font-size: 18px; color: var(--muted);
+      position: absolute; top: 18px; right: 18px;
+    }
+    .modal-close:hover { background: var(--text); border-color: var(--text); color: #fff; }
+    .flavor-img {
+      width: 56px; height: 56px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+    .flavor-img img { width: 100%; height: 100%; object-fit: contain; padding: 6px; position: relative; z-index: 2; }
+    .flavor-img .flavor-placeholder {
+      position: absolute; inset: 0;
+      display: none; align-items: center; justify-content: center;
+      font-size: 16px; font-weight: 800; letter-spacing: -0.02em;
+      opacity: 0.35; z-index: 1; user-select: none;
+    }
+
+    /* RANDOM FLAVOR REVEAL CARD */
+    .random-card {
+      background: #fff;
+      border-radius: 24px;
+      width: 100%; max-width: 380px;
+      padding: 32px 28px 28px;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.25);
+      animation: modalIn .28s cubic-bezier(.22,.68,0,1.2);
+    }
+    .random-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin-bottom: 18px; }
+    .random-img {
+      width: 140px; height: 140px; margin: 0 auto 20px;
+      border-radius: 20px; position: relative; overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .random-img .flavor-placeholder { font-size: 36px; }
+    .random-img img { width: 100%; height: 100%; object-fit: contain; padding: 14px; position: relative; z-index: 2; }
+    .random-brand { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+    .random-name { font-size: 22px; font-weight: 800; letter-spacing: -0.02em; color: var(--text); margin-bottom: 10px; }
+    .random-badges { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin-bottom: 14px; }
+    .random-desc { font-size: 13.5px; color: var(--muted); line-height: 1.6; margin-bottom: 24px; }
+    .random-actions { display: flex; flex-direction: column; gap: 10px; }
+    .random-btn-dark { background: var(--text); color: #fff; border-color: var(--text); }
+    .random-btn-dark:hover { background: #000; }
+
+    .flavor-img.brand-go-bears { background: linear-gradient(135deg, #e8f4e8 0%, #c8e6c9 100%); }
+    .flavor-img.brand-go-bears .flavor-placeholder { color: #2e7d32; }
+    .flavor-img.brand-klarro { background: linear-gradient(135deg, #e3eaf8 0%, #c5d3f0 100%); }
+    .flavor-img.brand-klarro .flavor-placeholder { color: #1a3a8f; }
+    .flavor-img.brand-fantos { background: linear-gradient(135deg, #fdecea 0%, #f9c9c4 100%); }
+    .flavor-img.brand-fantos .flavor-placeholder { color: #b71c1c; }
+    .badge {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.06em;
+      padding: 3px 8px; border-radius: 100px;
+      background: var(--bg); color: var(--muted); border: 1px solid var(--border);
+    }
+
+    /* STATS COUNTER */
+    .hero-stats { display: flex; gap: 36px; justify-content: center; margin-top: 28px; flex-wrap: wrap; }
+    .hero-stat { text-align: center; }
+    .hero-stat .num { font-size: 32px; font-weight: 800; letter-spacing: -0.02em; color: var(--text); }
+    .hero-stat .lbl { font-size: 12px; color: var(--muted); font-weight: 600; margin-top: 2px; }
+
+    /* RANDOM FLAVOR BUTTON */
+    .random-btn-wrap { display: flex; justify-content: center; margin-top: 22px; }
+    .random-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 700;
+      padding: 10px 22px; border-radius: 100px;
+      border: 1.5px solid var(--border); background: var(--surface); color: var(--text);
+      cursor: pointer; transition: transform .15s, box-shadow .15s, border-color .15s;
+    }
+    .random-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(0,0,0,0.08); border-color: #ccc; }
+    .random-btn svg { width: 16px; height: 16px; transition: transform .4s; }
+    .random-btn:active svg { transform: rotate(180deg); }
+
+    /* SEARCH BAR */
+    .search-wrap { max-width: 480px; margin: 0 auto 24px; padding: 0 24px; position: relative; }
+    .search-input {
+      width: 100%; font-family: 'Sora', sans-serif; font-size: 14px;
+      padding: 13px 18px 13px 42px; border-radius: 100px;
+      border: 1.5px solid var(--border); background: var(--surface); color: var(--text);
+      outline: none; transition: border-color .15s, box-shadow .15s;
+    }
+    .search-input:focus { border-color: var(--text); box-shadow: 0 0 0 3px rgba(0,0,0,0.06); }
+    .search-icon {
+      position: absolute; left: 42px; top: 50%; transform: translateY(-50%);
+      width: 16px; height: 16px; color: var(--muted); pointer-events: none;
+    }
+    .search-results {
+      position: absolute; top: calc(100% + 6px); left: 24px; right: 24px;
+      background: var(--surface); border: 1.5px solid var(--border); border-radius: 16px;
+      box-shadow: 0 20px 48px rgba(0,0,0,0.12);
+      max-height: 360px; overflow-y: auto;
+      z-index: 60; display: none;
+    }
+    .search-results.open { display: block; }
+    .search-result-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 16px; cursor: pointer; border-bottom: 1px solid var(--border);
+      transition: background .12s;
+    }
+    .search-result-item:last-child { border-bottom: none; }
+    .search-result-item:hover { background: var(--bg); }
+    .search-result-name { font-size: 13px; font-weight: 700; color: var(--text); }
+    .search-result-product { font-size: 11px; color: var(--muted); font-weight: 600; }
+    .search-empty { padding: 18px 16px; font-size: 13px; color: var(--muted); text-align: center; }
+
+    /* STICKY MINI FILTER */
+    .mini-filter {
+      position: fixed; top: 60px; left: 0; right: 0; z-index: 55;
+      background: rgba(255,255,255,0.92); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 24px;
+      display: flex; gap: 8px; justify-content: center;
+      transform: translateY(-100%); opacity: 0; transition: transform .25s, opacity .25s;
+      pointer-events: none;
+    }
+    .mini-filter.show { transform: translateY(0); opacity: 1; pointer-events: auto; }
+    .mini-filter .filter-btn { font-size: 12px; padding: 6px 16px; }
+
+    /* CARD TILT */
+    .card { transform-style: preserve-3d; will-change: transform; }
+
+    @media (max-width: 560px) {
+      .hero { padding: 40px 20px 28px; }
+      .hero-stats { gap: 24px; }
+      .hero-stat .num { font-size: 24px; }
+      .product-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+      .grid-wrap { padding: 0 16px 60px; }
+      .filters-wrap { padding: 0 16px 28px; }
+      .random-card { padding: 28px 22px 22px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="javascript:history.back()" class="nav-back">
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 16l-6-6 6-6"/></svg>
+    Wróć
+  </a>
+  <span class="nav-title">Asortyment</span>
+  <div class="nav-spacer"></div>
+</nav>
+
+<section class="hero">
+  <div class="hero-label">Płyny & Akcesoria</div>
+  <h1>Nasz Asortyment</h1>
+  <p>Wybierz markę i znajdź płyn idealny dla siebie. Dostępne w salonach U Waperów i Lemon Vape.</p>
+  <div class="hero-stats">
+    <div class="hero-stat"><div class="num" data-count="14">0</div><div class="lbl">linii produktów</div></div>
+    <div class="hero-stat"><div class="num" data-count="0">0</div><div class="lbl">smaków w ofercie</div></div>
+    <div class="hero-stat"><div class="num" data-count="3">0</div><div class="lbl">marki</div></div>
+  </div>
+  <div class="random-btn-wrap">
+    <button class="random-btn" id="random-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="5" r="1.2" fill="currentColor"/><circle cx="19" cy="5" r="1.2" fill="currentColor"/><circle cx="5" cy="19" r="1.2" fill="currentColor"/><circle cx="19" cy="19" r="1.2" fill="currentColor"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/><rect x="3" y="3" width="18" height="18" rx="4"/></svg>
+      Zaskocz mnie smakiem
+    </button>
+  </div>
+</section>
+
+<div class="search-wrap">
+  <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+  <input type="text" class="search-input" id="search-input" placeholder="Szukaj smaku, np. mango, mięta...">
+  <div class="search-results" id="search-results"></div>
+</div>
+
+<div class="filters-wrap">
+  <div class="filters">
+    <button class="filter-btn active" data-filter="all">Wszystkie</button>
+    <button class="filter-btn" data-filter="go-bears">Go Bears</button>
+    <button class="filter-btn" data-filter="klarro">Klarro</button>
+    <button class="filter-btn" data-filter="fantos">Fantos</button>
+  </div>
+</div>
+
+<div class="mini-filter" id="mini-filter">
+  <button class="filter-btn active" data-filter="all">Wszystkie</button>
+  <button class="filter-btn" data-filter="go-bears">Go Bears</button>
+  <button class="filter-btn" data-filter="klarro">Klarro</button>
+  <button class="filter-btn" data-filter="fantos">Fantos</button>
+</div>
+
+<div class="grid-wrap">
+  <div class="product-grid" id="grid">
+
+    <a class="card" data-cat="go-bears" data-product="go-bears-drops" href="produkty-go-bears-drops.html">
+      <div class="card-img"><span class="placeholder">GB</span><img src="images/products/go-bears-drops.png" alt="Go Bears Drops" onerror="this.style.display='none';this.previousElementSibling.style.display='flex';"></div>
+      <div class="card-body"><div class="card-brand">Go Bears</div><div class="card-name">Go Bears Drops</div><div class="card-hint">8 smaków →</div></div>
+    </a>
+
+    <a class="card" data-cat="go-bears" data-product="go-bears-classic" href="produkty-go-bears-classic.html">
+      <div class="card-img"><span class="placeholder">GB</span><img src="images/products/go-bears-classic.png" alt="Go Bears Classic" onerror="this.style.display='none';this.previousElementSibling.style.display='flex';"></div>
+      <div class="card-body"><div class="card-brand">Go Bears</div><div class="card-name">Go Bears Classic</div><div class="card-hint">12 smaków →</div></div>
+    </a>
+
+    <a class="card" data-cat="go-bears" data-product="go-bears-frux" href="produkty-go-bears-frux.html">
+      <div class="card-img"><span class="placeholder">GB</span><img src="images/products/go-bears-frux.png" alt="Go Bears Frux" onerror="this.style.display='none';this.previousElementSibling.style.display='flex';"></div>
+      <div class="card-body"><div class="card-brand">Go Bears</div><div class="card-name">Go Bears Frux</div><div class="card-hint">7 smaków →</div></div>
+    </a>
+
+    <a class="card" data-cat="go-bears" data-product="go-bears-net" href="produkty-go-bears-net.html">
+      <div class="card-img"><span class="placeholder">GB</span><img src="images/products/go-bears-net.png" alt="Go Bears NET" onerror="this.style.display='none';this.previousElementSibling.style.display='flex';"></div>
+      <div class="card-body"><div class="card-brand">Go Bears</div><div class="card-name">Go Bears NET</div><div class="card-hint">8 smaków →</div></div>
+    </a>
+
+    <a class="card" data-cat="go-bears" data-product="go-bears-tea" href="produkty-go-bears-tea.html">
+      <div class="card-img"><span class="placeholder">GB</span><img src="images/products/go-bears-tea.png" alt="Go Bears Tea" onerror="this.style.display='none';this.previousElementSibling.style.display='flex';"></div>
+      <div class="card-body"><div class="card-brand">Go Bears</div><div class="card-name">Go Bears Tea</div><div class="card-hint">11 smaków →</div></div>
+    </a>
+
+    <a class="card" data-cat="go-bears" data-product="longfill-go-bears-frux" href="produkty-longfill-go-bears-frux.html">
+      <div class="card-img"><span class="placeholder">GB</span><img src="images/products/longfill-go-bears.png" alt="Longfill Go Bears" onerror="this.style.display='none';this.previousElementSibling.style.display='flex';"></div>
+      <div class="card-body"><div class="card-brand">Go Bears</div><div class="card-name">Longfill Go Bears Frux</div><div class="card-hint">6 smaków →</div></div>
+    </a>
+
+    <a class="card" data-cat="go-bears" data-product="longfill-go-bears-tea" href="produkty-longfill-go-bears-tea.html">
+      <div class="card-img"><span class="placeholder">GB</span><img src="images/products/longfill-go-bears-tea.png" alt="Longfill Go Bears Tea" onerror="this.style.display='none';this.previousElementSibling.style.display='flex';"></div>
+      <div class="card-body"><div class="card-brand">Go Bears</div><div class="card-name">Longfill Go Bears Tea</div><div class="card-hint">6 smaków →</div></div>
+    </a>
+
+    <a class="card" data-cat="klarro" data-product="klarro-rock" href="produkty-klarro-rock.html">
+      <div class="card-img"><span class="placeholder">KL</span><img src="images/products/klarro-rock.png" alt="Klarro Rock" onerror="this.style.display='none';this.previousElementSibling.style.display='flex';"></div>
+      <div class="card-body"><div class="card-brand">Klarro</div><div class="card-name">Klarro Rock</div><div class="card-hint">15 smaków →</div></div>
+    </a>
+
+    <a class="card" data-cat="klarro" data-product="klarro-soul" href="produkty-klarro-soul.html">
+      <div class="card-img"><span class="placeholder">KL</span><img src="images/products/klarro-soul.png" alt="Klarro Soul" onerror="this.style.display='none';this.previousElementSibling.style.display='flex';"></div>
+      <div class="card-body"><div class="card-brand">Klarro</div><div class="card-name">Klarro Soul</div><div class="card-hint">40 smaków →</div></div>
+    </a>
+
+    <a class="card" data-cat="klarro" data-product="klarro-soul-tobacco" href="produkty-klarro-soul-tobacco.html">
+      <div class="card-img"><span class="placeholder">KL</span><img src="images/products/klarro-soul-tobacco.png" alt="Klarro Soul Tobacco" onerror="this.style.display='none';this.previousElementSibling.style.display='flex';"></div>
+      <div class="card-body"><div class="card-brand">Klarro</div><div class="card-name">Klarro Soul Tobacco</div><div class="card-hint">3 smaki →</div></div>
+    </a>
+
+    <a class="card" data-cat="klarro" data-product="klarro-smooth-funk" href="produkty-klarro-smooth-funk.html">
+      <div class="card-img"><span class="placeholder">KL</span><img src="images/products/klarro-smooth-funk.png" alt="Klarro Smooth Funk" onerror="this.style.display='none';this.previousElementSibling.style.display='flex';"></div>
+      <div class="card-body"><div class="card-brand">Klarro</div><div class="card-name">Klarro Smooth Funk</div><div class="card-hint">23 smaki →</div></div>
+    </a>
+
+    <a class="card" data-cat="fantos" data-product="fantos" href="produkty-fantos.html">
+      <div class="card-img"><span class="placeholder">FT</span><img src="images/products/fantos.png" alt="Fantos" onerror="this.style.display='none';this.previousElementSibling.style.display='flex';"></div>
+      <div class="card-body"><div class="card-brand">Fantos</div><div class="card-name">Fantos</div><div class="card-hint">8 smaków →</div></div>
+    </a>
+
+    <a class="card" data-cat="fantos" data-product="fantos-koncentrat" href="produkty-fantos-koncentrat.html">
+      <div class="card-img"><span class="placeholder">FT</span><img src="images/products/longfill-fantos.png" alt="Longfill Fantos" onerror="this.style.display='none';this.previousElementSibling.style.display='flex';"></div>
+      <div class="card-body"><div class="card-brand">Fantos</div><div class="card-name">Longfill Fantos</div><div class="card-hint">8 smaków →</div></div>
+    </a>
+
+    <a class="card" data-cat="fantos" data-product="fizzy-fantos" href="produkty-fizzy-fantos.html">
+      <div class="card-img"><span class="placeholder">FT</span><img src="images/products/fizzi-fantos.png" alt="Fizzi Fantos" onerror="this.style.display='none';this.previousElementSibling.style.display='flex';"></div>
+      <div class="card-body"><div class="card-brand">Fantos</div><div class="card-name">Fizzi Fantos</div><div class="card-hint">8 smaków →</div></div>
+    </a>
+
+  </div>
+</div>
+
+<div class="back-links">
+  <a href="https://kamilpiechotaa.github.io/U-Waper-w/" class="back-link">← U Waperów</a>
+  <a href="https://kamilpiechotaa.github.io/lemonvape/" class="back-link">← Lemon Vape</a>
+</div>
+
+<!-- RANDOM FLAVOR REVEAL -->
+<div class="modal-overlay" id="random-overlay">
+  <div class="random-card" id="random-card">
+    <button class="modal-close" id="random-close" aria-label="Zamknij">✕</button>
+    <div class="random-eyebrow">Twój wylosowany smak</div>
+    <div class="random-img flavor-img" id="random-img">
+      <span class="flavor-placeholder" id="random-placeholder"></span>
+      <img id="random-flavor-img" src="" alt="">
+    </div>
+    <div class="random-brand" id="random-brand"></div>
+    <div class="random-name" id="random-name"></div>
+    <div class="random-badges" id="random-badges"></div>
+    <div class="random-desc" id="random-desc"></div>
+    <div class="random-actions">
+      <button class="random-btn" id="random-reroll">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        Losuj jeszcze raz
+      </button>
+      <button class="random-btn random-btn-dark" id="random-view-series">Zobacz całą serię →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── DANE PRODUKTÓW ───────────────────────────────────────────────
+const PRODUCTS = {
+
+  'go-bears-drops': {
+    brand: 'Go Bears', name: 'Go Bears Drops',
+    flavors: [
+      { name: 'Kwaśna Pomarańcza', badges: ['20mg/ml', '10ml'], desc: 'Cukierek o smaku kwaśnej pomarańczy pobudzi Twoje kubki smakowe. Citrusly?! Tak, ten smak to prawdziwa eksplozja orzeźwienia, gdzie słodycz przeplata się z cytrusową nutą. Idealny wybór dla fanów wyrazistych doznań!' },
+      { name: 'Różowy Grejpfrut', badges: ['20mg/ml', '10ml'], desc: 'Lekko słodki, lekko gorzki, maksymalnie soczysty - So grapeful! Różowy grejpfrut w wersji cukierkowej balansuje między owocową świeżością a słodkością. Jeden buch i zakochasz się w tej tropikalnej energii!' },
+      { name: 'Zielone Jabłko', badges: ['20mg/ml', '10ml'], desc: 'Zielone jabłko zamknięte w cukierku? Kwaśne, wyjątkowo soczyste i zadziorne. Apple-solutely good! Idealne dla fanów owocowych smaków z twistem.' },
+      { name: 'Świeża Mięta', badges: ['20mg/ml', '10ml'], desc: 'Miętowy cukierek, który odświeża z każdym buchem – What do you mint? Orzeźwiający, chłodzący i niesamowicie wciągający smak, który działa jak lodowaty powiew w upalny dzień.' },
+      { name: 'Owoce Leśne', badges: ['20mg/ml', '10ml'], desc: 'Jagody, maliny, jeżyny – czyli leśne dary w wersji cukierkowej! Dziki mix, po którym pragniesz krzyknąć Berrylicious! Lekko słodki, lekko kwaśny, jednym słowem – zbalansowany!' },
+      { name: 'Zielone Winogrono', badges: ['20mg/ml', '10ml'], desc: 'Winogronowa uczta w cukierkowej wersji. Słodkie, kwaśne i tak soczyste, że aż trudno uwierzyć! Jeden buch i masz wrażenie jakbyś właśnie zjadł garść winogron prosto z krzaka. Nic tylko rzec – Feelin\' grape!' },
+      { name: 'Ananas', badges: ['20mg/ml', '10ml'], desc: 'Soczysty, słodko-kwaskowy ananas w najczystszej postaci! Każda chmura to intensywny smak świeżo pokrojonych owoców – Slice, slice, baby! Zanurz się w tropikalnej słodyczy.' },
+      { name: 'Borówka', badges: ['20mg/ml', '10ml'], desc: 'Soczysty, słodki i delikatnie kwaśny aromat. Aż ciężko uwierzyć, że to nie garść świeżo zerwanych borówek – Very blueberry! Spróbujesz raz i przepadniesz!' },
+    ]
+  },
+
+  'go-bears-classic': {
+    brand: 'Go Bears', name: 'Go Bears Classic',
+    flavors: [
+      { name: 'Tytoń', badges: ['6mg/ml', '12mg/ml', '18mg/ml', '10ml'], desc: 'Dla tych, którzy cenią sobie prostotę i klasyczne rozwiązania – intensywny, wytrawny smak tytoniu bez zbędnych dodatków. Czysta przyjemność dla podniebienia!' },
+      { name: 'Mięta', badges: ['6mg/ml', '12mg/ml', '18mg/ml', '10ml'], desc: 'Miętowy chillout dla zmysłów! Orzeźwiający i lekki, ale z charakterem. Smak, który koi i pobudza jednocześnie.' },
+      { name: 'Menthol', badges: ['6mg/ml', '12mg/ml', '18mg/ml', '10ml'], desc: 'Smak, który nie bierze jeńców. Potężna dawka lodowatego orzeźwienia. Czysty i intensywny jak powiew zimowego powietrza.' },
+      { name: 'Truskawka', badges: ['6mg/ml', '12mg/ml', '18mg/ml', '10ml'], desc: 'Niegrzecznie dobra. Truskawka, która pieści zmysły słodyczą i zostawia owocowy ślad z charakterem – pokusa, której trudno się oprzeć!' },
+      { name: 'Kiwi', badges: ['6mg/ml', '12mg/ml', '18mg/ml', '10ml'], desc: 'Egzotyczny romans słodyczy i kwasku. Soczyste, odświeżające i pełne energii kiwi pobudza zmysły i dodaje mocy na cały dzień.' },
+      { name: 'Czarna Porzeczka', badges: ['6mg/ml', '12mg/ml', '18mg/ml', '10ml'], desc: 'Niegrzeczna, ale przyciągająca – czarna porzeczka, która swoją intensywnością nie daje o sobie zapomnieć. Cierpka, pełna smaku, z tajemniczą nutą.' },
+      { name: 'Truskawka & Kiwi', badges: ['6mg/ml', '12mg/ml', '18mg/ml', '10ml'], desc: 'Duet idealny! Soczysta słodycz dojrzałych truskawek przeplata się z orzeźwiającą kwaśnością kiwi, tworząc smak, który pobudza zmysły i sprawia, że chce się więcej.' },
+      { name: 'Zielone Jabłko & Truskawka', badges: ['6mg/ml', '12mg/ml', '18mg/ml', '10ml'], desc: 'Ten duet to owocowa para z temperamentem: ona słodka, on lekko kwaśny, ale razem tworzą coś naprawdę soczystego.' },
+      { name: 'Earl Grey & Cytryna', badges: ['6mg/ml', '12mg/ml', '18mg/ml', '10ml'], desc: 'Subtelna goryczka herbaty spotyka cytrynową świeżość. To połączenie ma w sobie spokój i energię – balans, który smakuje o każdej porze.' },
+      { name: 'Czarna Porzeczka & Menthol', badges: ['6mg/ml', '12mg/ml', '18mg/ml', '10ml'], desc: 'Głęboka słodycz czarnej porzeczki przełamana lodowatym podmuchem mentholu. Intensywna, orzeźwiająca kompozycja, która odświeża z każdym zaciągnięciem.' },
+      { name: 'Winogrono & Czarna Porzeczka', badges: ['6mg/ml', '12mg/ml', '18mg/ml', '10ml'], desc: 'Fuzja dojrzałego winogrona spotyka dzikość czarnej porzeczki, tworząc zgrany, choć nieoczywisty duet. Smak, który buja kubki smakowe niczym letni przebój!' },
+      { name: 'Czarna Porzeczka & Liczi', badges: ['6mg/ml', '12mg/ml', '18mg/ml', '10ml'], desc: 'Prawdziwy balans smaków! Liczi zaskakuje lekkością, czarna porzeczka dba, by nie było zbyt grzecznie – razem tworzą intrygującą całość.' },
+    ]
+  },
+
+  'go-bears-frux': {
+    brand: 'Go Bears', name: 'Go Bears Frux',
+    flavors: [
+      { name: 'Kwaśna Malina', badges: ['20mg/ml', '10ml'], desc: 'Kwaśna, soczysta i totalnie odjechana. Rozkręca kubki smakowe i wciąga na maksa. Daj się ponieść i let\'s jam!' },
+      { name: 'Mango', badges: ['20mg/ml', '10ml'], desc: 'Słodkie, soczyste i na maksa tropikalne mango, które smakuje jak wakacje zamknięte w małej butelce. Po prostu mangonificent!' },
+      { name: 'Słodka Wiśnia', badges: ['20mg/ml', '10ml'], desc: 'Intensywnie słodka, aromatyczna i dojrzała wiśnia, która przeniesie Cię prosto do letniego sadu. Maksymalna przyjemność w każdym buchu. Po prostu cherrific!' },
+      { name: 'Banan & Mango', badges: ['20mg/ml', '10ml'], desc: 'Beach, please… czas na tropiki! Egzotyczny duet kremowego banana i soczystego mango w mgnieniu oka przeniesie Cię na rajską plażę.' },
+      { name: 'Jabłko & Mięta', badges: ['20mg/ml', '10ml'], desc: 'Świeże, chrupiące jabłko i orzeźwiająca mięta. Brzmi jak duet idealny! Na maksa rześko i przyjemnie. Apple-solutely cool!' },
+      { name: 'Malina & Mięta', badges: ['20mg/ml', '10ml'], desc: 'Wyrazista, słodko-kwaśna malina w połączeniu z miętowym orzeźwieniem. Dynamiczny duet, który daje zastrzyk energii. Rasp-berry minty!' },
+      { name: 'Papaja & Malina', badges: ['20mg/ml', '10ml'], desc: 'Let\'s get juicy! Egzotyczna papaja i aromatyczna malina w soczystym tandemie. Słodko-kwaśna przygoda dla podniebienia.' },
+    ]
+  },
+
+  'go-bears-net': {
+    brand: 'Go Bears', name: 'Go Bears NET',
+    flavors: [
+      { name: 'Virginia Tobacco', badges: ['20mg/ml', '10ml'], desc: 'Czysty, klasyczny smak Virginii. Lekko słodki, delikatnie orzechowy i niesamowicie gładki – po prostu the Golden Virgin! Idealne dla tych, którzy cenią sobie prostą, satysfakcjonującą klasykę.' },
+      { name: 'Cigar', badges: ['20mg/ml', '10ml'], desc: 'Bogaty, głęboki i pełen elegancji smak, który pachnie sukcesem i wieczorem spędzonym w skórzanym fotelu. Bierzesz bucha i od razu czujesz się jak boss. Puff Puff, Daddy!' },
+      { name: 'Chinese Tobacco', badges: ['20mg/ml', '10ml'], desc: 'Pełen intensywności, z lekką nutą ostrości. Ten smak potrafi zionąć ogniem! Jeśli lubisz intensywne aromaty i nie boisz się odrobiny charakteru – Dragon\'s Breath!' },
+      { name: 'Golden Tobacco', badges: ['20mg/ml', '10ml'], desc: 'Bogaty, głęboki aromat z wytrawnym akcentem. Prawdziwe złoto wśród tytoni. Let\'s be honest, Gold Digger.' },
+      { name: 'Original Tobacco', badges: ['20mg/ml', '10ml'], desc: 'Żadnych sztuczek czy zbędnych dodatków, klasyczny tytoń w najczystszej postaci. Legenda zawsze na topie – The OG!' },
+      { name: 'Gold Tobacco', badges: ['20mg/ml', '10ml'], desc: 'Delikatny, gładki, otulający przyjemną słodyczą. Jeśli szukasz rozwiązania, które jest łagodne, ale nie nudne – poczuj się AU-some!' },
+      { name: 'American Mixed Tobacco', badges: ['20mg/ml', '10ml'], desc: 'Idealny balans łagodnych, słodkich nut z wyrazistym, głębokim aromatem! Prawdziwy American TBQ!' },
+      { name: 'Fragrant Tobacco', badges: ['20mg/ml', '10ml'], desc: 'Tytoniowa eksplozja smaku! Bogaty i pełen charakteru aromat, który wciąga od pierwszego bucha. Nadchodzi Tobaccolypse!' },
+    ]
+  },
+
+  'go-bears-tea': {
+    brand: 'Go Bears', name: 'Go Bears Tea',
+    flavors: [
+      { name: 'Zielona Herbata Cold Brew', badges: ['20mg/ml', '10ml'], desc: 'Orzeźwiająca, delikatna i idealnie zbalansowana. Smak zimnej, zielonej herbaty w najczystszej postaci. Subtelna harmonia świeżości i lekko trawiastej nuty. Brew-tally good!' },
+      { name: 'Matcha', badges: ['20mg/ml', '10ml'], desc: 'Intensywna i pełna energii. Matcha to nie tylko herbata, to styl życia! Balans między słodyczą a delikatną goryczką – perfect match-a!' },
+      { name: 'Herbata Malinowa', badges: ['20mg/ml', '10ml'], desc: 'Słodka, soczysta i lekko kwaskowa – malinowa herbata jaką znasz z dzieciństwa. Powrót do przeszłości gwarantowany! Very raspberry!' },
+      { name: 'Herbata z Kwiatów Czarnego Bzu', badges: ['20mg/ml', '10ml'], desc: 'Kwiatowa delikatność w herbacianym wydaniu. Subtelna słodycz czarnego bzu w połączeniu z herbacianą bazą tworzy duet idealny. What the flower?' },
+      { name: 'Herbata Jaśminowa', badges: ['20mg/ml', '10ml'], desc: 'Wyrafinowana, kwiatowa i absolutnie uzależniająca! Jaśminowa herbata to harmonia, która koi zmysły i otula lekką słodyczą. Holy sip!' },
+      { name: 'Herbata z Mango i Marakują', badges: ['20mg/ml', '10ml'], desc: 'Egzotyczne połączenie, które sprawi, że poczujesz smak wakacji! Słodkie, soczyste owoce wraz z herbacianą bazą tworzą smak, który zapada w pamięć. Best tea-m!' },
+      { name: 'Herbata Miętowa', badges: ['20mg/ml', '10ml'], desc: 'Klasyk, który nigdy nie zawodzi! Smak świeżo zaparzonej mięty, który błyskawicznie orzeźwia, dodaje lekkości i przyjemnie chłodzi – very min-tea!' },
+      { name: 'Herbata Miętowa z Grejpfrutem', badges: ['20mg/ml', '10ml'], desc: 'Mięta i grejpfrut? Sounds like a plan! Orzeźwiająca mięta w połączeniu z cytrusową energią grejpfruta – the grapest duo!' },
+      { name: 'Matcha z Marakują', badges: ['20mg/ml', '10ml'], desc: 'Egzotyczna marakuja nadaje świeżości i soczystej energii, idealnie równoważąc głębię klasycznej matchy. Never too match-a!' },
+      { name: 'Matcha z Liczi', badges: ['20mg/ml', '10ml'], desc: 'Bi*ch better have my matcha – i to z nutą soczystego liczi! Połączenie tak świeże i zaskakujące, że ciężko o nim zapomnieć.' },
+      { name: 'Matcha z Papają', badges: ['20mg/ml', '10ml'], desc: 'Kremowa papaja idealnie łagodzi intensywność matchy, tworząc harmonijną kompozycję. Matchas gracias!' },
+    ]
+  },
+
+  'longfill-go-bears-frux': {
+    brand: 'Go Bears', name: 'Longfill Go Bears Frux',
+    flavors: [
+      { name: 'Kwaśna Malina', badges: ['9ml'], desc: 'Kwaśna, soczysta i totalnie odjechana. Rozkręca kubki smakowe i wciąga na maksa. Daj się ponieść i let\'s jam!' },
+      { name: 'Mango', badges: ['9ml'], desc: 'Słodkie, soczyste i na maksa tropikalne mango, które smakuje jak wakacje zamknięte w małej butelce. Po prostu mangonificent!' },
+      { name: 'Słodka Wiśnia', badges: ['9ml'], desc: 'Intensywnie słodka, aromatyczna i dojrzała wiśnia, która przeniesie Cię prosto do letniego sadu. Maksymalna przyjemność w każdym buchu. Po prostu cherrific!' },
+      { name: 'Banan & Mango', badges: ['9ml'], desc: 'Beach, please… czas na tropiki! Egzotyczny duet kremowego banana i soczystego mango w mgnieniu oka przeniesie Cię na rajską plażę.' },
+      { name: 'Jabłko & Mięta', badges: ['9ml'], desc: 'Świeże, chrupiące jabłko i orzeźwiająca mięta. Na maksa rześko i przyjemnie. Apple-solutely cool!' },
+      { name: 'Malina & Mięta', badges: ['9ml'], desc: 'Wyrazista, słodko-kwaśna malina w połączeniu z miętowym orzeźwieniem. Dynamiczny duet, który daje zastrzyk energii. Rasp-berry minty!' },
+    ]
+  },
+
+  'longfill-go-bears-tea': {
+    brand: 'Go Bears', name: 'Longfill Go Bears Tea',
+    flavors: [
+      { name: 'Zielona Herbata Cold Brew', badges: ['9ml'], desc: 'Orzeźwiająca, delikatna i idealnie zbalansowana. Smak zimnej, zielonej herbaty w najczystszej postaci. Brew-tally good!' },
+      { name: 'Herbata Malinowa', badges: ['9ml'], desc: 'Słodka, soczysta i lekko kwaskowa – malinowa herbata jaką znasz z lat młodości. Powrót do przeszłości gwarantowany! Very raspberry!' },
+      { name: 'Herbata Jaśminowa', badges: ['9ml'], desc: 'Wyrafinowana, kwiatowa i absolutnie uzależniająca! Jaśminowa herbata to harmonia, która koi zmysły. Holy sip!' },
+      { name: 'Herbata z Mango i Marakują', badges: ['9ml'], desc: 'Egzotyczne połączenie, które sprawi, że poczujesz smak wakacji! Best tea-m!' },
+      { name: 'Herbata Miętowa', badges: ['9ml'], desc: 'Klasyk, który nigdy nie zawodzi! Świeżo zaparzona mięta, która błyskawicznie orzeźwia – very min-tea!' },
+      { name: 'Herbata Miętowa z Grejpfrutem', badges: ['9ml'], desc: 'Orzeźwiająca mięta w połączeniu z cytrusową energią grejpfruta – the grapest duo!' },
+    ]
+  },
+
+  'klarro-rock': {
+    brand: 'Klarro', name: 'Klarro Rock',
+    flavors: [
+      { name: 'Mrożony Arbuz', badges: ['3mg/ml', '6mg/ml', '12mg/ml', '18mg/ml', '10ml'], desc: 'Smak, który uderza w mocno orzeźwiające tony! Poczuj, jak wypełnia Twoje kubki smakowe już od pierwszego bucha!' },
+      { name: 'Truskawka & Arbuz', badges: ['3mg/ml', '6mg/ml', '12mg/ml', '18mg/ml', '10ml'], desc: 'Niepowtarzalny duet, w którym zakochasz się już po pierwszej nutce! Intensywna słodycz truskawki i orzeźwienie arbuza – po prostu połączenie doskonałe!' },
+      { name: 'Truskawka & Kiwi', badges: ['3mg/ml', '6mg/ml', '12mg/ml', '18mg/ml', '10ml'], desc: 'Truskawka i Kiwi są po prostu dla siebie stworzone! Odpręż się, zaciągnij i poczuj jak słodko-kwaśne połączenie wypełnia całą przestrzeń.' },
+      { name: 'Mrożona Truskawka', badges: ['3mg/ml', '6mg/ml', '12mg/ml', '18mg/ml', '10ml'], desc: 'Tęsknisz za letnimi wieczorami? Wystarczy, że się zaciągniesz, a wszystkie letnie wspomnienia wrócą już w pierwszym buchu!' },
+      { name: 'Kwaśne Jabłko', badges: ['3mg/ml', '6mg/ml', '12mg/ml', '18mg/ml', '10ml'], desc: 'Przygotuj się na uderzenie smaku, które przełamuje nudę i nadaje odpowiedniego rytmu! Jest kwaśno, intensywnie, z rockowym pazurem.' },
+      { name: 'Mięta', badges: ['3mg/ml', '6mg/ml', '12mg/ml', '18mg/ml', '10ml'], desc: 'Klasyczny smak w tak intensywnym wydaniu sprawi, że wkręcisz się w nią jak w najlepszy refren.' },
+      { name: 'Cytryna & Mięta', badges: ['3mg/ml', '6mg/ml', '12mg/ml', '18mg/ml', '10ml'], desc: 'Ten duet to murowany hit na lata! Orzeźwiająco-kwaśne połączenie, które z pewnością znajdzie się na każdej playliście.' },
+      { name: 'Kiwi, Marakuja & Guawa', badges: ['3mg/ml', '6mg/ml', '12mg/ml', '18mg/ml', '10ml'], desc: 'W tym zespole wszystkie nuty biją w jednym rytmie. Zaciągnij się i poczuj oryginalne połączenie, które przeniesie Cię prosto na letni festiwal.' },
+      { name: 'Brzoskwinia', badges: ['3mg/ml', '6mg/ml', '12mg/ml', '18mg/ml', '10ml'], desc: 'Z pozoru delikatna, jednak po kilku zaciągnięciach poczujesz jej owocową intensywność i słodycz, które zapamiętasz na bardzo długo.' },
+      { name: 'Mrożone Winogrono', badges: ['3mg/ml', '6mg/ml', '12mg/ml', '18mg/ml', '10ml'], desc: 'Coś się w Tobie gotuje? Weź to na chłodno i poczuj jak smak Mrożonego Winogrona sprawdza się nawet w najgorętszej sytuacji!' },
+      { name: 'Winogronowy Energetyk', badges: ['3mg/ml', '6mg/ml', '12mg/ml', '18mg/ml', '10ml'], desc: 'Smak, który pobudzi Cię do życia niczym solówka na gitarze elektrycznej! Zaciągnij się i poczuj intensywne uderzenie Winogronowego Energetyka!' },
+      { name: 'Mrożona Lemoniada Żurawinowa', badges: ['3mg/ml', '6mg/ml', '12mg/ml', '18mg/ml', '10ml'], desc: 'Usiądź, zaciągnij się, zrelaksuj się i poczuj jak smak mrożonej lemoniady żurawinowej przenosi Cię na plażowy leżak rozstawiony nad ciepłym morzem.' },
+      { name: 'Jagoda, Malina & Cytryna', badges: ['3mg/ml', '6mg/ml', '12mg/ml', '18mg/ml', '10ml'], desc: 'Trio, które bez końca uderza w mocne i intensywne tony. Smak przeznaczony dla wielbicieli kwaśnych i niesamowicie orzeźwiających rytmów.' },
+      { name: 'Jagoda & Malina', badges: ['3mg/ml', '6mg/ml', '12mg/ml', '18mg/ml', '10ml'], desc: 'Orzeźwiające jam session, do którego chcesz wracać o każdej porze roku. Smak, w którym Jagoda i Malina przenikają się z intensywnością, kwaśnością i słodyczą.' },
+      { name: 'Mrożona Jagoda', badges: ['3mg/ml', '6mg/ml', '12mg/ml', '18mg/ml', '10ml'], desc: 'Przenieś się wspomnieniami do gorących letnich dni wypełnionych Twoimi ulubionymi rytmami przenikającymi się z intensywnością Mrożonej Jagody!' },
+    ]
+  },
+
+  'klarro-soul': {
+    brand: 'Klarro', name: 'Klarro Soul',
+    flavors: [
+      { name: 'Mrożona Herbata & Cytryna', badges: ['20mg/ml', '10ml'], desc: 'Klasyka gatunku pełna charakteru, głębi, ale także słodyczy przeplatanej orzeźwiającymi cytrynowymi nutami.' },
+      { name: 'Herbata Oolong', badges: ['20mg/ml', '10ml'], desc: 'Niezwykle popularna chińska herbata cechująca się wielowymiarowością smaków. Nuty kwiatowe przeplatają się tu ze słodyczą owoców, mleczną kremowością oraz prażonymi orzechami.' },
+      { name: 'Żurawina & Winogrono', badges: ['20mg/ml', '10ml'], desc: 'Żurawina i winogrono to owocna współpraca dwóch oryginalnych aromatów. Ich połączenie dostarcza unikalnych wrażeń smakowych, których słodka nuta wybrzmiewa jeszcze długo po ostatnim zaciągnięciu.' },
+      { name: 'Winogronowy Energetyk', badges: ['20mg/ml', '10ml'], desc: 'Winogronowy aromat to orzeźwienie, które doda Ci energii na dłużej, jak najlepsze muzyczne rytmy.' },
+      { name: 'Soczysta Brzoskwinia', badges: ['20mg/ml', '10ml'], desc: 'Brzoskwiniowe nuty smakowe to coś w sam raz dla Ciebie! Przeżyj wyjątkową przygodę i zaciągnij się owocowym aromatem. Jego słodycz zapamiętasz na długo.' },
+      { name: 'Różowa Lemoniada', badges: ['20mg/ml', '10ml'], desc: 'Po co Ci różowe okulary, skoro możesz patrzeć na świat z… Różową Lemoniadą? Spróbuj wyjątkowego wkładu, którego aromat pobudzi wszystkie zmysły.' },
+      { name: 'Brzoskwinia & Jabłko', badges: ['20mg/ml', '10ml'], desc: 'Spragniony owocowych przyjemności? Sięgnij po aromatyczny wkład z brzoskwinią i jabłkiem. Te smaki współgrają ze sobą tak, jak instrumenty w Twoim ulubionym kawałku.' },
+      { name: 'Chłodny Energetyk', badges: ['20mg/ml', '10ml'], desc: 'Potrzebujesz spojrzenia na chłodno? Wybierz orzeźwiający smak Chłodnego Energetyka. Odświeża myśli z prędkością błyskawicy.' },
+      { name: 'Gazowana Cola', badges: ['20mg/ml', '10ml'], desc: 'Gazowana Cola to smak, który w duszy gra! Każde zaciągnięcie jest przygodą, o jakiej nie można długo zapomnieć.' },
+      { name: 'Jagoda, Jeżyna & Ziołowe Cukierki', badges: ['20mg/ml', '10ml'], desc: 'Kompozycja dla konesera dobrego smaku. Jagoda & Ziołowe Cukierki to połączenie, które zaskakuje jak niezapowiedziana płyta ulubionego wykonawcy.' },
+      { name: 'Jagoda, Malina & Cytryna', badges: ['20mg/ml', '10ml'], desc: 'Jedyne trio, które ma wszystko. Jagoda, malina i cytryna są ze sobą zgrane jak legendarny zespół.' },
+      { name: 'Kiwi, Guawa & Marakuja', badges: ['20mg/ml', '10ml'], desc: 'Odkryj egzotyczne połączenie smaków. Kiwi, marakuja i guawa – to nie może się nie udać.' },
+      { name: 'Kwaśne Jabłko', badges: ['20mg/ml', '10ml'], desc: 'Orzeźwiające Kwaśne Jabłko to smak dla kogoś, kto oczekuje od życia konkretów. Wyrazisty aromat daje szybką motywację do działania.' },
+      { name: 'Rześka Mięta', badges: ['20mg/ml', '10ml'], desc: 'W tym smaku pierwsze skrzypce gra oczywiście mięta, a następnie nuta orzeźwienia, która towarzyszy przy każdym zaciągnięciu.' },
+      { name: 'Mrożona Lemoniada Żurawinowa', badges: ['20mg/ml', '10ml'], desc: 'Smak Mrożonej Lemoniady Żurawinowej? W sam raz na dni, kiedy potrzebujesz dużej dawki chłodu!' },
+      { name: 'Mrożona Jagoda & Malina', badges: ['20mg/ml', '10ml'], desc: 'Po głowie chodzą Ci owocowe, orzeźwiające rytmy? Zaciągnij się intrygującym jagodowo-malinowym wkładem.' },
+      { name: 'Mrożona Truskawka', badges: ['20mg/ml', '10ml'], desc: 'Wkład o smaku Mrożonej Truskawki? To coś, czego potrzebujesz! Jego wyraziste nuty smakowe przeniosą Cię daleko w krainę przyjemności.' },
+      { name: 'Mrożone Jagody', badges: ['20mg/ml', '10ml'], desc: 'Rześki smak Mrożonych Jagód to brakujący element Twojej ulubionej składanki muzycznej.' },
+      { name: 'Mrożone Liczi', badges: ['20mg/ml', '10ml'], desc: 'Liczysz, że porwie Cię wir przygody? Sięgnij po Mrożone Liczi i ruszaj! Ten wyjątkowy, egzotyczny wkład jest na wyciągnięcie ręki.' },
+      { name: 'Mrożone Winogrono', badges: ['20mg/ml', '10ml'], desc: 'Słodkie winogrona jedzone podczas równie słodkich chwil relaksu są kwintesencją beztroski.' },
+      { name: 'Mrożony Arbuz', badges: ['20mg/ml', '10ml'], desc: 'Potrzebujesz natychmiastowego orzeźwienia? Mrożony arbuz to smak, przy którym Twoje ulubione energetyzujące piosenki porwą Cię jeszcze mocniej.' },
+      { name: 'Pomarańcza, Ananas & Mango', badges: ['20mg/ml', '10ml'], desc: 'Połączenie pomarańczy, ananasa i mango pomoże Ci poczuć się jak na tropikalnej plaży. Must-have dla wielbicieli pobudzających nut zapachowych.' },
+      { name: 'Truskawka & Kiwi', badges: ['20mg/ml', '10ml'], desc: 'Zestawienie słodkiego i kwaśnego smaku nie bez powodu ma ogromną grupę wielbicieli! Odpręż się, wdychając zapach swoich ulubionych owoców.' },
+      { name: 'Owoce Lasu', badges: ['20mg/ml', '10ml'], desc: 'Niezależnie od preferencji, na myśl przychodzi smak owoców leśnych – maliny, jagody i jeżyny prosto z krzewów. Właśnie tak smakuje wolność wyboru.' },
+      { name: 'Gazowana Pomarańcza', badges: ['20mg/ml', '10ml'], desc: 'Spokojnie, te bąbelki nie uderzą Ci do głowy. Poczuj jak orzeźwiająca gazowana pomarańcza wypełnia swoim aromatem całą przestrzeń!' },
+      { name: 'Melon Miodowy', badges: ['20mg/ml', '10ml'], desc: 'Prawdziwa harmonia smaku skomponowana z myślą o tych, którzy poszukują słodkich i soczystych doznań.' },
+      { name: 'Zielone Jabłko, Guawa & Cytryna', badges: ['20mg/ml', '10ml'], desc: 'Odrobina świeżości, egzotycznej słodkości i szczypta kwaśności – przepis na liquid doskonały.' },
+      { name: 'Płatki na Mleku', badges: ['20mg/ml', '10ml'], desc: 'Najpierw mleko, czy płatki? Tu nie ma tego problemu – po prostu zaciągasz się i cieszysz się smakiem najlepszego śniadania o każdej porze!' },
+      { name: 'Żelki Cytrynowe', badges: ['20mg/ml', '10ml'], desc: 'Zaciągasz się i od razu się… uśmiechasz! Niesamowicie orzeźwiający smak, dzięki któremu uśmiechniesz się w najbardziej ponury dzień.' },
+      { name: 'Winogrono & Tequila', badges: ['20mg/ml', '10ml'], desc: 'Połączenie, które uderza w najlepsze nuty! Doskonała kompozycja soczystej słodyczy ze szczyptą pikanterii dostarcza wyjątkowych doznań.' },
+      { name: 'Wiśniowa Cola', badges: ['20mg/ml', '10ml'], desc: 'Słodycz wiśni i kultowy smak coli – tu nie ma o czym pisać, tego po prostu trzeba spróbować!' },
+      { name: 'Niebieska Malina & Lemoniada', badges: ['20mg/ml', '10ml'], desc: 'Słodki owocowy smak w połączeniu z efektem chłodzenia i orzeźwienia podczas każdego zaciągnięcia to rewelacyjny mix.' },
+      { name: 'Żelki Owocowe', badges: ['20mg/ml', '10ml'], desc: 'Żelki – pierwsze do pobudzania kubków smakowych, które pokochają owocowy aromat naszego liquidu.' },
+      { name: 'Menthol Mojito', badges: ['Liquid Salt', '20mg/ml', '10ml'], desc: 'Totalny chill w tropikalnym wydaniu. Limonka, mięta i lodowy menthol robią taki refresh, że aż trudno wrócić do rzeczywistości.' },
+      { name: 'Mięta i Jagoda', badges: ['Liquid Salt', '20mg/ml', '10ml'], desc: 'Jagodowy vibe wjeżdża na pełnej, a chłodna mięta tylko podkręca całość. Słodko, świeżo i totalnie wciągająco.' },
+      { name: 'Herbata Żurawinowa', badges: ['Liquid Salt', '20mg/ml', '10ml'], desc: 'Żurawinowo-herbaciany twist, który wchodzi gładko od pierwszego zaciągnięcia. Lekko kwaśny, owocowy i mega klimatyczny.' },
+      { name: 'Herbata Pigwowa z Hibiskusem', badges: ['Liquid Salt', '20mg/ml', '10ml'], desc: 'Pigwa i hibiskus? Duo bardziej iconic niż Ci się wydaje. Słodko-kwaśny smak z kwiatowym finiszem do którego chce się wracać non stop.' },
+      { name: 'Świeża Mięta', badges: ['Liquid Salt', '20mg/ml', '10ml'], desc: 'Miętowy overload świeżości. Czysty smak, który resetuje zmysły lepiej niż zimny prysznic o 7 rano.' },
+      { name: 'Borówka Ice', badges: ['Liquid Salt', '20mg/ml', '10ml'], desc: 'Borówka + ice = duet, który wchodzi od razu. Owocowo, chłodno i turbo smooth od początku do końca.' },
+      { name: 'H-Berg Ice', badges: ['Liquid Salt', '20mg/ml', '10ml'], desc: 'Leśny vibe w najbardziej icy wydaniu. Jagoda, jeżyna i ziołowe aromaty łączą się w zimny miks, który smakuje jak spacer po lesie o świcie.' },
+    ]
+  },
+
+  'klarro-soul-tobacco': {
+    brand: 'Klarro', name: 'Klarro Soul Tobacco',
+    flavors: [
+      { name: 'Apple Tobacco', badges: ['20mg/ml', '10ml'], desc: 'Świeżość soczystego jabłka przełamana klasyczną głębią aromatycznego tytoniu. Smak z owocową lekkością i wytrawnym charakterem. Idealny dla miłośników owocowo-tytoniowych nut.' },
+      { name: 'Coconut Tobacco', badges: ['20mg/ml', '10ml'], desc: 'Nieoczywisty duet, który łączy kokosową słodycz z aromatycznym tytoniem. To podróż z karaibskiej plaży prosto do eleganckiego salonu wypełnionego aromatyczną chmurą.' },
+      { name: 'Biscuit Butter Tobacco', badges: ['20mg/ml', '10ml'], desc: 'Delikatna ciasteczkowa słodkość i kremowa gładkość przełamana dymną nutą. Wyjątkowy blend dla tych, którzy lubią, gdy klasyka nabiera deserowego charakteru.' },
+    ]
+  },
+
+  'klarro-smooth-funk': {
+    brand: 'Klarro', name: 'Klarro Smooth Funk',
+    flavors: [
+      { name: 'Cytrynowe Mojito', desc: 'Wakacje pod palmami? Najlepsze all inclusive to smak cytrynowego mojito, który serwuje Ci całą gamę smaków – od kwaśnych cytryn, po orzeźwiającą miętę i słodkie nuty, wszystko w jednym drinku. Tak właśnie smakuje wolność wyboru.' },
+      { name: 'Mrożona Lemoniada Żurawinowa', desc: 'Nie dość, że mrożona, to jeszcze żurawinowa… Mrożona lemoniada żurawinowa to smak, który przenosi wprost do wakacyjnych wspomnień.' },
+      { name: 'Kwaśne Jabłko', desc: 'Nie ma sensu się krzywić! Zamiast tego uśmiechnij się na myśl o przyjemności płynącej z każdego zaciągnięcia.' },
+      { name: 'Jagoda, Malina & Cytryna', desc: 'Takie owocowe trio to prawdziwy unikat. Zasmakuj w aromatycznym słodko-kwaśnym miksie o smaku jagody, maliny oraz cytryny.' },
+      { name: 'Mrożone Winogrono', desc: 'Zimno… Zimniej… Najzimniej! Znajdź swój powód do ochłody wspólnie z Mrożonym Winogronem, z którym poczujesz odpowiedni chill.' },
+      { name: 'Chłodny Energetyk', desc: 'Szukasz mocnych wrażeń? Ten aromat sprawi, że wykrzyczysz: "What the Fu*k!"' },
+      { name: 'Rześka Mięta', desc: 'W tym smaku pierwsze skrzypce gra oczywiście mięta, a następnie nuta orzeźwienia, która towarzyszy przy każdym zaciągnięciu.' },
+      { name: 'Kiwi, Marakuja & Guawa', desc: 'Kiwi, guawa i marakuja. Tylko tyle wystarczy, aby wyruszyć w egzotyczną podróż pełną owocowych połączeń smakowych.' },
+      { name: 'Żurawina & Winogrono', desc: 'Z tym duetem poczujesz się jak w najlepszym gronie. Spróbuj unikalnego połączenia owoców żurawiny i winogrona od Klarro Smooth Funk.' },
+      { name: 'Mrożone Zielone Jabłko', desc: 'Przygotuj się na powiew świeżości! Nasze orzeźwiające mrożone zielone jabłko schłodzi Cię w najbardziej upalny dzień.' },
+      { name: 'Wiśnia & Cytryna', desc: 'Słodycz i kwaśność, brzmi jak połączenie doskonałe! Poczuj jak słodycz soczystej wiśni miesza się z kwaśnością orzeźwiającej cytryny.' },
+      { name: 'Gazowana Cola', desc: 'Gazowana Cola to smak, który w duszy gra! Każde zaciągnięcie jest przygodą, o jakiej nie można długo zapomnieć.' },
+      { name: 'Jagody & Winogrono', desc: 'Najważniejsze to złapać odpowiedni balans! Stworzyliśmy połączenie soczystych jagód oraz słodkich winogron.' },
+      { name: 'Marakuja, Pomarańcza & Guawa', desc: 'Brakuje Ci słońca? A co powiesz na odrobinę egzotyki zamkniętej w małej buteleczce? Poczuj jej słodycz i orzeźwienie w każdym zaciągnięciu!' },
+      { name: 'Ananas & Cytryna', desc: 'Witamy w świecie tropików, gdzie soczystość i słodycz łączy się z nutą orzeźwiającej kwaśności. Must have z listy do zabrania na bezludną wyspę!' },
+      { name: 'Różowa Lemoniada', desc: 'Nie potrzebujesz różowych okularów, aby widzieć świat w jasnych barwach… Do tego wystarczy smak naszej Różowej Lemoniady.' },
+      { name: 'Oranżada Pomarańczowa', desc: 'Po tym smaku na pewno Ci odbije – na jego punkcie! Spróbuj koniecznie i przenieś się do czasów strzelania kapslami od butelek!' },
+      { name: 'Mrożone Liczi', desc: 'Potrzebujesz jeszcze więcej ochłodzenia? Sięgnij po smak Mrożonego Liczi, żeby poczuć owocową rześkość naszego aromatu.' },
+      { name: 'Mango, Guawa & Brzoskwinia', desc: 'Tropikalne aromaty połączone z klasyką. Zasmakuj w nutach mango, guawy i brzoskwini wymieszanych w ramach jednego smaku.' },
+      { name: 'Marakuja & Guawa', desc: 'Nie musisz lecieć na drugi koniec świata, bo prawdziwą egzotykę masz tuż pod ręką! Niesamowicie słodkie i aromatyczne połączenie.' },
+      { name: 'Mrożone Mango', desc: 'Masz słabość do mango? Zaciągnij się i poczuj, że tropiki wcale nie są tak daleko od Ciebie.' },
+      { name: 'Soczysta Brzoskwinia', desc: 'Intensywna i owocowa, ale przede wszystkim – soczysta. Poznaj nutę smakową naszej brzoskwini i pobudź zmysły jej zjawiskowym aromatem.' },
+      { name: 'Jabłko & Brzoskwinia', desc: 'Spragniony owocowych przyjemności? Sięgnij po aromatyczny wkład z brzoskwinią i jabłkiem. Te smaki współgrają ze sobą jak instrumenty w ulubionym kawałku.' },
+    ]
+  },
+
+  'fantos': {
+    brand: 'Fantos', name: 'Fantos',
+    flavors: [
+      { name: 'Blue', badges: ['3mg/ml', '6mg/ml', '12mg/ml', '18mg/ml'] },
+      { name: 'Grape', badges: ['3mg/ml', '6mg/ml', '12mg/ml', '18mg/ml'] },
+      { name: 'Green', badges: ['3mg/ml', '6mg/ml', '12mg/ml', '18mg/ml'] },
+      { name: 'Lemonade', badges: ['3mg/ml', '6mg/ml', '12mg/ml', '18mg/ml'] },
+      { name: 'Orange', badges: ['3mg/ml', '6mg/ml', '12mg/ml', '18mg/ml'] },
+      { name: 'Rainbow', badges: ['3mg/ml', '6mg/ml', '12mg/ml', '18mg/ml'] },
+      { name: 'Red', badges: ['3mg/ml', '6mg/ml', '12mg/ml', '18mg/ml'] },
+      { name: 'Yellow', badges: ['3mg/ml', '6mg/ml', '12mg/ml', '18mg/ml'] },
+    ]
+  },
+
+  'fantos-koncentrat': {
+    brand: 'Fantos', name: 'Longfill Fantos',
+    flavors: [
+      { name: 'Yellow', badges: ['5ml'], desc: 'Słodkie, egzotyczne mango połączone z lemoniadą i przyjemnym, chłodzącym friszem. Tropikalna świeżość z cytrusowym twistem.' },
+      { name: 'Lemonade', badges: ['5ml'], desc: 'Klasyka w najlepszym wydaniu — cytrynowo-limonkowe orzeźwienie lemoniady z intensywnym chłodem. Prosto, mocno i ekstremalnie orzeźwiająco!' },
+      { name: 'Blue', badges: ['5ml'], desc: 'Głęboki, lekko cierpki smak czarnej porzeczki połączony z falą lemoniadowego chłodu. Smak, który odświeża tak mocno, że aż chce się wrócić po więcej!' },
+      { name: 'Orange', badges: ['5ml'], desc: 'Słoneczna, soczysta pomarańcza połączona z lemoniadą i delikatnym chłodnym akcentem. Lekki, świeży smak z cytrusowym twistem.' },
+      { name: 'Grape', badges: ['5ml'], desc: 'Wyraziste winogrono o słodko-kwaśnym profilu połączone z lemoniadą i intensywnym lodowym chłodem. Smak mocny, świeży i dający złudzenie charakterystyczny.' },
+      { name: 'Red', badges: ['5ml'], desc: 'Wyjątkowe połączenie soczystego jabłka z lekką cytrusowością lemoniady i mocnym chłodem. Idealna kompozycja dla fanów totalnego orzeźwienia.' },
+      { name: 'Rainbow', badges: ['5ml'], desc: 'Owocowy miks pełen soczystych nut połączony z lemoniadą i mocnym lodowym orzeźwieniem. Intensywnie świeży smak w każdej chmurze.' },
+      { name: 'Green', badges: ['5ml'], desc: 'Arbuzowa słodycz przełamana cytrusową lemoniadą i przyjemnym efektem chłodzenia. Orzeźwiający smak idealny na każdy dzień.' },
+    ]
+  },
+
+  'fizzy-fantos': {
+    brand: 'Fantos', name: 'Fizzi Fantos',
+    flavors: [
+      { name: 'Musujący Egzotyczny Mix', badges: ['20mg/ml', '10ml'], desc: 'Zanurz się w tropikalnym raju, gdzie każdy wdech to eksplozja egzotycznych owoców z musującym efektem. Soczysta mieszanka, która przeniesie Cię daleko od codzienności!' },
+      { name: 'Musujące Mango', badges: ['20mg/ml', '10ml'], desc: 'Słodkie, dojrzałe mango w połączeniu z bąbelkami? Brzmi świetnie, smakuje jeszcze lepiej! Idealnie orzeźwiająca propozycja na każdą porę dnia!' },
+      { name: 'Musująca Lemoniada', badges: ['20mg/ml', '10ml'], desc: 'Cytrynowa lemoniada z bąbelkami – musujące orzeźwienie, które rozbudzi Cię szybciej niż poranna kawa.' },
+      { name: 'Musujący Ananas', badges: ['20mg/ml', '10ml'], desc: 'Słodki ananas z musującym finiszem. Soczysty do granic i pysznie niegrzeczny – dokładnie taki, jak lubisz!' },
+      { name: 'Musujące Winogrono', badges: ['20mg/ml', '10ml'], desc: 'Fioletowe, musujące i pełne charakteru. Smak, który nie potrzebuje zaproszenia, by zabłysnąć na pierwszym planie!' },
+      { name: 'Musująca Truskawka', badges: ['20mg/ml', '10ml'], desc: 'Truskawkowa rozkosz z musującym twistem. Kusi od pierwszego zaciągnięcia i prowadzi prosto do krainy przyjemności!' },
+      { name: 'Musujące Jabłko', badges: ['20mg/ml', '10ml'], desc: 'Klasyka w nowoczesnym, musującym wydaniu. Prosta, orzeźwiająca, a jednocześnie pełna charakteru propozycja. Ożywi każdą chwilę.' },
+      { name: 'Musujący Grejpfrut', badges: ['20mg/ml', '10ml'], desc: 'Słodko-gorzki jak romans z plot twistem. Intrygujący, wyrazisty i cudownie orzeźwiający – taki właśnie jest grejpfrut.' },
+    ]
+  },
+
+};
+
+// ─── HELPERS ─────────────────────────────────────────────────────
+function slugify(str) {
+  return str
+    .toLowerCase()
+    .replace(/ą/g,'a').replace(/ć/g,'c').replace(/ę/g,'e').replace(/ł/g,'l')
+    .replace(/ń/g,'n').replace(/ó/g,'o').replace(/ś/g,'s').replace(/ź/g,'z').replace(/ż/g,'z')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+function flavorSlug(productKey, flavorName) {
+  const cleaned = flavorName.replace(/\b(Musujący|Musująca|Musujące|Mrożony|Mrożona|Mrożone)\s+/gi, '');
+  return slugify(productKey + '-' + cleaned);
+}
+
+// ─── NAVIGATION HELPER ───────────────────────────────────────────
+function productPageUrl(productKey, flavorName) {
+  let url = 'produkty-' + productKey + '.html';
+  if (flavorName) url += '#' + flavorSlug(productKey, flavorName);
+  return url;
+}
+
+// ─── FILTER + REVEAL ─────────────────────────────────────────────
+const btns = document.querySelectorAll('.filter-btn');
+const cards = document.querySelectorAll('.card');
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const card = entry.target;
+      const visCards = Array.from(cards).filter(c => !c.classList.contains('hidden'));
+      const idx = visCards.indexOf(card);
+      setTimeout(() => card.classList.add('visible'), idx * 60);
+      observer.unobserve(card);
+    }
+  });
+}, { threshold: 0.08 });
+
+cards.forEach(card => observer.observe(card));
+
+function applyFilter(f) {
+  btns.forEach(b => b.classList.toggle('active', b.dataset.filter === f));
+  let i = 0;
+  cards.forEach(card => {
+    if (f === 'all' || card.dataset.cat === f) {
+      card.classList.remove('hidden', 'visible');
+      const idx = i++;
+      setTimeout(() => card.classList.add('visible'), idx * 60);
+    } else {
+      card.classList.add('hidden');
+      card.classList.remove('visible');
+    }
+  });
+}
+
+btns.forEach(btn => {
+  btn.addEventListener('click', () => applyFilter(btn.dataset.filter));
+});
+
+// ─── STICKY MINI FILTER ──────────────────────────────────────────
+const miniFilter = document.getElementById('mini-filter');
+const filtersWrap = document.querySelector('.filters-wrap');
+window.addEventListener('scroll', () => {
+  const trigger = filtersWrap.getBoundingClientRect().bottom < 0;
+  miniFilter.classList.toggle('show', trigger);
+});
+
+// ─── ANIMATED STATS COUNTER ──────────────────────────────────────
+const totalFlavors = Object.values(PRODUCTS).reduce((sum, p) => sum + p.flavors.length, 0);
+document.querySelectorAll('.hero-stat .num')[1].dataset.count = totalFlavors;
+
+function animateCount(el) {
+  const target = parseInt(el.dataset.count, 10);
+  const dur = 1100;
+  const start = performance.now();
+  function tick(now) {
+    const progress = Math.min((now - start) / dur, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    el.textContent = Math.round(eased * target);
+    if (progress < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+const statsObserver = new IntersectionObserver((entries, obs) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      document.querySelectorAll('.hero-stat .num').forEach(animateCount);
+      obs.disconnect();
+    }
+  });
+}, { threshold: 0.4 });
+const heroStatsEl = document.querySelector('.hero-stats');
+if (heroStatsEl) statsObserver.observe(heroStatsEl);
+
+// ─── SEARCH ──────────────────────────────────────────────────────
+const searchInput = document.getElementById('search-input');
+const searchResults = document.getElementById('search-results');
+
+function buildSearchIndex() {
+  const index = [];
+  for (const [key, p] of Object.entries(PRODUCTS)) {
+    for (const f of p.flavors) {
+      index.push({ productKey: key, productName: p.name, brand: p.brand, flavorName: f.name });
+    }
+  }
+  return index;
+}
+const searchIndex = buildSearchIndex();
+
+function runSearch(query) {
+  const q = slugify(query).replace(/-/g, '');
+  if (!q) { searchResults.classList.remove('open'); return; }
+  const results = searchIndex.filter(item => slugify(item.flavorName).replace(/-/g, '').includes(q)).slice(0, 20);
+  if (!results.length) {
+    searchResults.innerHTML = '<div class="search-empty">Nic nie znaleziono dla "' + query + '"</div>';
+  } else {
+    searchResults.innerHTML = results.map(r =>
+      `<div class="search-result-item" data-product="${r.productKey}" data-flavor="${r.flavorName}">
+        <div>
+          <div class="search-result-name">${r.flavorName}</div>
+          <div class="search-result-product">${r.productName}</div>
+        </div>
+      </div>`
+    ).join('');
+  }
+  searchResults.classList.add('open');
+}
+
+searchInput.addEventListener('input', () => runSearch(searchInput.value));
+searchInput.addEventListener('focus', () => { if (searchInput.value) searchResults.classList.add('open'); });
+document.addEventListener('click', e => {
+  if (!e.target.closest('.search-wrap')) searchResults.classList.remove('open');
+});
+searchResults.addEventListener('click', e => {
+  const item = e.target.closest('.search-result-item');
+  if (!item) return;
+  window.location.href = productPageUrl(item.dataset.product, item.dataset.flavor);
+});
+
+// ─── RANDOM FLAVOR ───────────────────────────────────────────────
+const randomOverlay = document.getElementById('random-overlay');
+const randomImgWrap = document.getElementById('random-img');
+const randomPlaceholder = document.getElementById('random-placeholder');
+const randomFlavorImg = document.getElementById('random-flavor-img');
+const randomBrand = document.getElementById('random-brand');
+const randomName = document.getElementById('random-name');
+const randomBadges = document.getElementById('random-badges');
+const randomDesc = document.getElementById('random-desc');
+let currentRandomProductKey = null;
+
+function showRandomFlavor() {
+  const pick = searchIndex[Math.floor(Math.random() * searchIndex.length)];
+  const p = PRODUCTS[pick.productKey];
+  const f = p.flavors.find(fl => fl.name === pick.flavorName);
+  currentRandomProductKey = pick.productKey;
+
+  randomImgWrap.className = 'random-img flavor-img brand-' + slugify(p.brand);
+  randomPlaceholder.textContent = p.brand.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
+  const slug = flavorSlug(pick.productKey, f.name);
+  randomPlaceholder.style.display = 'none';
+  randomFlavorImg.style.display = '';
+  randomFlavorImg.src = 'images/flavors/' + slug + '.png';
+  randomFlavorImg.alt = f.name;
+  randomFlavorImg.onerror = () => { randomFlavorImg.style.display = 'none'; randomPlaceholder.style.display = 'flex'; };
+
+  randomBrand.textContent = p.name;
+  randomName.textContent = f.name;
+  randomBadges.innerHTML = (f.badges || []).map(b => `<span class="badge">${b}</span>`).join('');
+  randomDesc.textContent = f.desc || '';
+
+  randomOverlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeRandomOverlay() {
+  randomOverlay.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.getElementById('random-btn').addEventListener('click', showRandomFlavor);
+document.getElementById('random-reroll').addEventListener('click', showRandomFlavor);
+document.getElementById('random-close').addEventListener('click', closeRandomOverlay);
+document.getElementById('random-view-series').addEventListener('click', () => {
+  window.location.href = productPageUrl(currentRandomProductKey, randomName.textContent);
+});
+randomOverlay.addEventListener('click', e => { if (e.target === randomOverlay) closeRandomOverlay(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && randomOverlay.classList.contains('open')) closeRandomOverlay(); });
+
+// ─── CARD 3D TILT ────────────────────────────────────────────────
+cards.forEach(card => {
+  card.addEventListener('mousemove', e => {
+    if (!card.classList.contains('visible')) return;
+    card.classList.add('tilting');
+    const r = card.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width - 0.5;
+    const y = (e.clientY - r.top) / r.height - 0.5;
+    card.style.transform = `translateY(-6px) scale(1.015) rotateX(${(-y * 8).toFixed(2)}deg) rotateY(${(x * 8).toFixed(2)}deg)`;
+  });
+  card.addEventListener('mouseleave', () => {
+    card.classList.remove('tilting');
+    card.style.transform = '';
+  });
+});
+</script>
+
+</body>
+</html>
